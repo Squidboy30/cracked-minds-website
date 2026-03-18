@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cracked Minds — IT & AI Consultancy</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pixel: 4px;
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --bg3: #1a1a26;
+    --cyan: #00f5ff;
+    --yellow: #ffe600;
+    --magenta: #ff00aa;
+    --green: #00ff88;
+    --orange: #ff6b00;
+    --purple: #9b59ff;
+    --white: #f0f0f0;
+    --grid: rgba(0,245,255,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    image-rendering: pixelated;
+  }
+
+  /* PIXEL GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .pixel-font { font-family: 'Press Start 2P', monospace; }
+
+  /* ==================== NAV ==================== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    border-bottom: 2px solid var(--cyan);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    text-shadow: 0 0 12px var(--cyan), 2px 2px 0 var(--magenta);
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--magenta); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color 0.1s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 2px;
+    background: var(--cyan);
+    transform: scaleX(0);
+    transition: transform 0.15s;
+  }
+
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-cta {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    padding: 10px 16px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    transition: background 0.1s, transform 0.1s;
+  }
+
+  .nav-cta:hover { background: var(--yellow); transform: translateY(-1px); }
+
+  /* ==================== HERO ==================== */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 2rem 2rem;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  /* ISOMETRIC CITY SCENE - CSS PIXEL ART */
+  .iso-scene {
+    position: absolute;
+    right: -40px;
+    bottom: 0;
+    width: 520px;
+    height: 480px;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  /* Individual isometric buildings */
+  .iso-building {
+    position: absolute;
+    transform-style: preserve-3d;
+  }
+
+  /* Top face */
+  .iso-top {
+    position: absolute;
+    transform: rotateX(60deg) rotateZ(45deg);
+  }
+
+  /* Left face */
+  .iso-left {
+    position: absolute;
+  }
+
+  /* Right face */
+  .iso-right {
+    position: absolute;
+  }
+
+  /* PIXEL BUILDINGS using clip-path parallelograms */
+  .bld {
+    position: absolute;
+  }
+
+  /* Building 1 - tallest - cyan */
+  .b1-top { width: 80px; height: 40px; background: #00c8d4; position: absolute; top: 120px; left: 220px; clip-path: polygon(40px 0, 80px 20px, 40px 40px, 0 20px); }
+  .b1-left { width: 40px; height: 120px; background: #007a82; position: absolute; top: 160px; left: 220px; clip-path: polygon(0 0, 40px 0, 40px 120px, 0 120px); }
+  .b1-right { width: 40px; height: 120px; background: #005a60; position: absolute; top: 160px; left: 260px; clip-path: polygon(0 0, 40px 0, 40px 120px, 0 120px); }
+
+  /* Window rows on b1-left */
+  .b1-left::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 5px;
+    width: 28px; height: 100px;
+    background: repeating-linear-gradient(
+      transparent, transparent 10px,
+      rgba(0,245,255,0.6) 10px, rgba(0,245,255,0.6) 14px
+    );
+  }
+
+  /* Building 2 - yellow/orange */
+  .b2-top { width: 64px; height: 32px; background: #ccb800; position: absolute; top: 180px; left: 320px; clip-path: polygon(32px 0, 64px 16px, 32px 32px, 0 16px); }
+  .b2-left { width: 32px; height: 80px; background: #806000; position: absolute; top: 212px; left: 320px; }
+  .b2-right { width: 32px; height: 80px; background: #604800; position: absolute; top: 212px; left: 352px; }
+
+  /* Building 3 - magenta - wide */
+  .b3-top { width: 96px; height: 48px; background: #cc0088; position: absolute; top: 200px; left: 120px; clip-path: polygon(48px 0, 96px 24px, 48px 48px, 0 24px); }
+  .b3-left { width: 48px; height: 60px; background: #7a0050; position: absolute; top: 248px; left: 120px; }
+  .b3-right { width: 48px; height: 60px; background: #580038; position: absolute; top: 248px; left: 168px; }
+
+  /* Building 4 - small green */
+  .b4-top { width: 48px; height: 24px; background: #00cc66; position: absolute; top: 240px; left: 380px; clip-path: polygon(24px 0, 48px 12px, 24px 24px, 0 12px); }
+  .b4-left { width: 24px; height: 40px; background: #007a3d; position: absolute; top: 264px; left: 380px; }
+  .b4-right { width: 24px; height: 40px; background: #005a2d; position: absolute; top: 264px; left: 404px; }
+
+  /* Building 5 - purple tall */
+  .b5-top { width: 56px; height: 28px; background: #7b46cc; position: absolute; top: 140px; left: 400px; clip-path: polygon(28px 0, 56px 14px, 28px 28px, 0 14px); }
+  .b5-left { width: 28px; height: 100px; background: #4a2880; position: absolute; top: 168px; left: 400px; }
+  .b5-right { width: 28px; height: 100px; background: #361c60; position: absolute; top: 168px; left: 428px; }
+
+  /* Ground plane */
+  .ground { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(transparent, rgba(0,245,255,0.08)); }
+
+  /* Floating pixels decoration */
+  .pixel-float {
+    position: absolute;
+    animation: float-pixel linear infinite;
+  }
+
+  @keyframes float-pixel {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-400px) translateX(40px); opacity: 0; }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 620px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--magenta);
+    letter-spacing: 3px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '▶';
+    color: var(--cyan);
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .hero-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(22px, 4vw, 36px);
+    line-height: 1.6;
+    color: var(--white);
+    margin-bottom: 1rem;
+    text-shadow: 4px 4px 0 var(--magenta), 8px 8px 0 rgba(255,0,170,0.2);
+  }
+
+  .hero-title .accent { color: var(--cyan); text-shadow: 4px 4px 0 var(--purple), 0 0 30px rgba(0,245,255,0.5); }
+
+  .hero-sub {
+    font-size: 13px;
+    color: rgba(240,240,240,0.7);
+    line-height: 1.9;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+    border-left: 3px solid var(--cyan);
+    padding-left: 1rem;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    padding: 14px 24px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    transition: transform 0.1s;
+    box-shadow: 4px 4px 0 var(--magenta);
+  }
+
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--magenta); }
+
+  .btn-secondary {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    background: transparent;
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+    padding: 12px 22px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.1s, color 0.1s;
+  }
+
+  .btn-secondary:hover { background: var(--cyan); color: var(--bg); }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: var(--yellow);
+    text-shadow: 2px 2px 0 var(--orange);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: rgba(240,240,240,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* ==================== TICKER ==================== */
+  .ticker-wrap {
+    position: relative;
+    z-index: 2;
+    background: var(--cyan);
+    overflow: hidden;
+    border-top: 2px solid var(--yellow);
+    border-bottom: 2px solid var(--yellow);
+    padding: 10px 0;
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 0;
+    animation: ticker 20s linear infinite;
+    width: max-content;
+  }
+
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .ticker-item {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--bg);
+    white-space: nowrap;
+    padding: 0 2rem;
+    letter-spacing: 1px;
+  }
+
+  .ticker-dot {
+    color: var(--magenta);
+    padding: 0 0.5rem;
+  }
+
+  /* ==================== SECTIONS ==================== */
+  section {
+    position: relative;
+    z-index: 2;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* ==================== ABOUT ==================== */
+  #about {
+    padding: 6rem 2rem;
+    background: var(--bg2);
+    border-top: 2px solid rgba(0,245,255,0.15);
+  }
+
+  .section-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--magenta);
+    letter-spacing: 3px;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(16px, 2.5vw, 24px);
+    line-height: 1.7;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title .accent { color: var(--cyan); }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .about-text p {
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(240,240,240,0.7);
+    margin-bottom: 1rem;
+  }
+
+  /* PIXEL CHARACTER */
+  .pixel-char {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pixel-canvas {
+    image-rendering: pixelated;
+    width: 200px;
+    height: 200px;
+  }
+
+  /* ==================== SERVICES ==================== */
+  #services {
+    padding: 6rem 2rem;
+    background: var(--bg);
+  }
+
+  .services-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .service-card {
+    background: var(--bg2);
+    border: 2px solid transparent;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+    cursor: default;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .service-card.it::before { background: var(--cyan); }
+  .service-card.ai::before { background: var(--magenta); }
+  .service-card.ma::before { background: var(--yellow); }
+  .service-card.pmo::before { background: var(--green); }
+
+  .service-card:hover {
+    border-color: rgba(0,245,255,0.3);
+    transform: translateY(-3px);
+    background: var(--bg3);
+  }
+
+  .service-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1.25rem;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  /* CSS pixel icons */
+  .icon-it, .icon-ai, .icon-ma, .icon-pmo {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1.25rem;
+    position: relative;
+  }
+
+  .icon-it { background:
+    linear-gradient(var(--cyan) 0, var(--cyan) 8px, transparent 8px, transparent 16px,
+    var(--cyan) 16px, var(--cyan) 24px, transparent 24px, transparent 32px,
+    var(--cyan) 32px, var(--cyan) 40px, transparent 40px, transparent 48px)
+    8px 4px / 32px 48px no-repeat,
+    linear-gradient(90deg, var(--cyan) 0, var(--cyan) 4px, transparent 4px) 4px 0 / 48px 48px no-repeat;
+    filter: drop-shadow(0 0 6px var(--cyan));
+  }
+
+  .service-number {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px;
+    color: rgba(255,255,255,0.06);
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    line-height: 1;
+  }
+
+  .service-tag {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .service-card.it .service-tag { color: var(--cyan); border: 1px solid var(--cyan); }
+  .service-card.ai .service-tag { color: var(--magenta); border: 1px solid var(--magenta); }
+  .service-card.ma .service-tag { color: var(--yellow); border: 1px solid var(--yellow); }
+  .service-card.pmo .service-tag { color: var(--green); border: 1px solid var(--green); }
+
+  .service-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+
+  .service-desc {
+    font-size: 12px;
+    line-height: 1.9;
+    color: rgba(240,240,240,0.6);
+    margin-bottom: 1.5rem;
+  }
+
+  .service-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .service-features li {
+    font-size: 11px;
+    color: rgba(240,240,240,0.5);
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .service-features li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+  }
+
+  .service-card.ai .service-features li::before { color: var(--magenta); }
+  .service-card.ma .service-features li::before { color: var(--yellow); }
+  .service-card.pmo .service-features li::before { color: var(--green); }
+
+  /* ==================== WHY US ==================== */
+  #why {
+    padding: 6rem 2rem;
+    background: var(--bg2);
+    border-top: 2px solid rgba(255,0,170,0.15);
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 3rem auto 0;
+  }
+
+  .why-item {
+    padding: 1.5rem;
+    background: var(--bg3);
+    border-left: 3px solid var(--cyan);
+    position: relative;
+  }
+
+  .why-item:nth-child(2) { border-left-color: var(--magenta); }
+  .why-item:nth-child(3) { border-left-color: var(--yellow); }
+  .why-item:nth-child(4) { border-left-color: var(--green); }
+  .why-item:nth-child(5) { border-left-color: var(--orange); }
+  .why-item:nth-child(6) { border-left-color: var(--purple); }
+
+  .why-icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .why-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--white);
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+  }
+
+  .why-desc {
+    font-size: 11px;
+    color: rgba(240,240,240,0.5);
+    line-height: 1.8;
+  }
+
+  /* ==================== TESTIMONIAL ==================== */
+  #testimonials {
+    padding: 6rem 2rem;
+    background: var(--bg);
+  }
+
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    max-width: 1100px;
+    margin: 3rem auto 0;
+  }
+
+  .testimonial-card {
+    background: var(--bg2);
+    padding: 2rem;
+    border-top: 2px solid var(--cyan);
+    position: relative;
+  }
+
+  .testimonial-card::before {
+    content: '"';
+    font-family: 'Press Start 2P', monospace;
+    font-size: 40px;
+    color: rgba(0,245,255,0.1);
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    line-height: 1;
+  }
+
+  .testimonial-text {
+    font-size: 12px;
+    line-height: 1.9;
+    color: rgba(240,240,240,0.7);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .author-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--bg);
+    flex-shrink: 0;
+    image-rendering: pixelated;
+  }
+
+  .author-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--white);
+    margin-bottom: 3px;
+  }
+
+  .author-title {
+    font-size: 10px;
+    color: rgba(240,240,240,0.4);
+  }
+
+  /* ==================== CTA ==================== */
+  #contact {
+    padding: 6rem 2rem;
+    background: var(--bg2);
+    border-top: 2px solid rgba(0,245,255,0.2);
+    text-align: center;
+  }
+
+  .cta-box {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 3rem;
+    background: var(--bg);
+    border: 2px solid var(--cyan);
+    position: relative;
+    box-shadow: 8px 8px 0 var(--magenta), 16px 16px 0 rgba(255,0,170,0.2);
+  }
+
+  /* Corner decorations */
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    width: 16px; height: 16px;
+    background: var(--magenta);
+  }
+
+  .cta-box::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; right: -2px;
+    width: 16px; height: 16px;
+    background: var(--yellow);
+  }
+
+  .cta-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(14px, 2vw, 20px);
+    color: var(--white);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .cta-sub {
+    font-size: 13px;
+    color: rgba(240,240,240,0.6);
+    line-height: 1.9;
+    margin-bottom: 2rem;
+  }
+
+  .cta-form {
+    display: flex;
+    gap: 0;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .cta-input {
+    flex: 1;
+    background: var(--bg2);
+    border: 2px solid var(--cyan);
+    border-right: none;
+    padding: 12px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--white);
+    outline: none;
+  }
+
+  .cta-input::placeholder { color: rgba(240,240,240,0.3); }
+
+  .cta-submit {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    background: var(--cyan);
+    color: var(--bg);
+    border: 2px solid var(--cyan);
+    padding: 12px 20px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    transition: background 0.1s;
+  }
+
+  .cta-submit:hover { background: var(--yellow); border-color: var(--yellow); }
+
+  /* ==================== FOOTER ==================== */
+  footer {
+    background: var(--bg);
+    border-top: 2px solid rgba(0,245,255,0.15);
+    padding: 3rem 2rem 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto 2rem;
+  }
+
+  .footer-brand .logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    text-shadow: 2px 2px 0 var(--magenta);
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .footer-brand p {
+    font-size: 11px;
+    color: rgba(240,240,240,0.4);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 8px;
+  }
+
+  .social-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--bg2);
+    border: 1px solid rgba(0,245,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--cyan);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.1s;
+  }
+
+  .social-btn:hover { background: var(--cyan); color: var(--bg); }
+
+  .footer-col h4 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--white);
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 8px; }
+  .footer-col ul li a {
+    font-size: 11px;
+    color: rgba(240,240,240,0.4);
+    text-decoration: none;
+    transition: color 0.1s;
+  }
+
+  .footer-col ul li a:hover { color: var(--cyan); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(0,245,255,0.1);
+    padding-top: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-bottom p {
+    font-size: 10px;
+    color: rgba(240,240,240,0.3);
+  }
+
+  .footer-bottom .pixel-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--magenta);
+  }
+
+  /* ==================== PIXEL DECORATIONS ==================== */
+  .px-corner {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--cyan);
+  }
+
+  .px-corner.tl { top: 0; left: 0; }
+  .px-corner.tr { top: 0; right: 0; }
+  .px-corner.bl { bottom: 0; left: 0; }
+  .px-corner.br { bottom: 0; right: 0; }
+
+  /* ==================== ANIMATED GRID DECORATIONS ==================== */
+  .pixel-rain {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .rain-drop {
+    position: absolute;
+    width: 4px;
+    animation: rain linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes rain {
+    0% { transform: translateY(-20px); opacity: 0; }
+    5% { opacity: 0.6; }
+    95% { opacity: 0.6; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .about-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .iso-scene { opacity: 0.2; width: 300px; right: -60px; }
+    .hero-title { font-size: 18px; }
+    .cta-form { flex-direction: column; }
+    .cta-input { border-right: 2px solid var(--cyan); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">CRACKED<span>_</span>MINDS</a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">[ GET IN TOUCH ]</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <!-- Pixel rain decoration -->
+  <div class="pixel-rain" id="pixelRain"></div>
+
+  <!-- Isometric city scene -->
+  <div class="iso-scene">
+    <div class="b1-top"></div><div class="b1-left"></div><div class="b1-right"></div>
+    <div class="b2-top"></div><div class="b2-left"></div><div class="b2-right"></div>
+    <div class="b3-top"></div><div class="b3-left"></div><div class="b3-right"></div>
+    <div class="b4-top"></div><div class="b4-left"></div><div class="b4-right"></div>
+    <div class="b5-top"></div><div class="b5-left"></div><div class="b5-right"></div>
+    <div class="ground"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">MANCHESTER, UK &nbsp;·&nbsp; EST. 2024</div>
+    <h1 class="hero-title">
+      WE SOLVE<br>
+      COMPLEX<br>
+      <span class="accent">PROBLEMS.</span>
+    </h1>
+    <p class="hero-sub">
+      Cracked Minds is an elite IT & AI consultancy. We partner with organisations to deliver technology transformation, intelligent automation, M&A integration, and structured programme delivery.
+    </p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary">[ OUR SERVICES ]</a>
+      <a href="#contact" class="btn-secondary">[ CONTACT US ]</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">4</span>
+        <span class="stat-label">CORE SERVICES</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">INDEPENDENT</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">24/7</span>
+        <span class="stat-label">AI-POWERED</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack">
+    <span class="ticker-item">IT CONSULTANCY <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">AI STRATEGY <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">MERGERS & ACQUISITIONS <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">PMO IN A BOX <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">DIGITAL TRANSFORMATION <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">CLOUD MIGRATION <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">CRACKED MINDS <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">IT CONSULTANCY <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">AI STRATEGY <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">MERGERS & ACQUISITIONS <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">PMO IN A BOX <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">DIGITAL TRANSFORMATION <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">CLOUD MIGRATION <span class="ticker-dot">◆</span></span>
+    <span class="ticker-item">CRACKED MINDS <span class="ticker-dot">◆</span></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid container">
+    <div class="about-text">
+      <p class="section-label">// ABOUT US</p>
+      <h2 class="section-title">WE DON'T JUST<br><span class="accent">CONSULT.</span><br>WE DELIVER.</h2>
+      <p>Cracked Minds is built differently. We're not an 18-month roadmap firm. We're the team you call when you need real, human, hands-on expertise that integrates with your organisation and gets the job done.</p>
+      <p>Our consultants have deep track records across IT transformation, AI implementation, M&A integration, and programme management. We work as an extension of your team — not a third party billing hours.</p>
+      <p>Based in Manchester with a global reach, we combine boutique agility with enterprise-grade capability.</p>
+      <a href="#contact" class="btn-primary" style="margin-top:1.5rem;display:inline-block">[ WORK WITH US ]</a>
+    </div>
+    <div class="pixel-char">
+      <!-- Pixel art brain / character SVG -->
+      <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="80" y="40" width="80" height="8" fill="#00f5ff"/>
+        <rect x="64" y="48" width="112" height="8" fill="#00f5ff"/>
+        <rect x="56" y="56" width="128" height="8" fill="#00c8d4"/>
+        <rect x="48" y="64" width="144" height="8" fill="#00c8d4"/>
+        <rect x="48" y="72" width="8" height="8" fill="#00f5ff"/>
+        <rect x="56" y="72" width="56" height="8" fill="#007a82"/>
+        <rect x="128" y="72" width="56" height="8" fill="#007a82"/>
+        <rect x="184" y="72" width="8" height="8" fill="#00f5ff"/>
+        <!-- eyes -->
+        <rect x="72" y="72" width="24" height="24" fill="#ff00aa"/>
+        <rect x="80" y="80" width="8" height="8" fill="#fff"/>
+        <rect x="144" y="72" width="24" height="24" fill="#ff00aa"/>
+        <rect x="152" y="80" width="8" height="8" fill="#fff"/>
+        <!-- mouth -->
+        <rect x="96" y="104" width="8" height="8" fill="#ffe600"/>
+        <rect x="104" y="104" width="32" height="8" fill="#ffe600"/>
+        <rect x="136" y="104" width="8" height="8" fill="#ffe600"/>
+        <!-- body -->
+        <rect x="80" y="120" width="80" height="8" fill="#00f5ff" opacity="0.6"/>
+        <rect x="72" y="128" width="96" height="48" fill="#12121a" stroke="#00f5ff" stroke-width="2"/>
+        <!-- circuit lines on body -->
+        <rect x="80" y="136" width="32" height="2" fill="#00f5ff" opacity="0.4"/>
+        <rect x="128" y="136" width="32" height="2" fill="#ff00aa" opacity="0.4"/>
+        <rect x="80" y="148" width="16" height="2" fill="#ffe600" opacity="0.4"/>
+        <rect x="104" y="148" width="32" height="2" fill="#00ff88" opacity="0.4"/>
+        <rect x="144" y="148" width="16" height="2" fill="#9b59ff" opacity="0.4"/>
+        <!-- legs -->
+        <rect x="88" y="176" width="24" height="32" fill="#007a82"/>
+        <rect x="128" y="176" width="24" height="32" fill="#007a82"/>
+        <rect x="80" y="200" width="32" height="8" fill="#005a60"/>
+        <rect x="128" y="200" width="32" height="8" fill="#005a60"/>
+        <!-- arms -->
+        <rect x="48" y="128" width="24" height="8" fill="#007a82"/>
+        <rect x="168" y="128" width="24" height="8" fill="#007a82"/>
+        <rect x="40" y="136" width="16" height="24" fill="#007a82"/>
+        <rect x="184" y="136" width="16" height="24" fill="#007a82"/>
+        <!-- hands -->
+        <rect x="32" y="152" width="24" height="16" fill="#00f5ff" opacity="0.6"/>
+        <rect x="184" y="152" width="24" height="16" fill="#00f5ff" opacity="0.6"/>
+        <!-- glow -->
+        <rect x="72" y="64" width="96" height="96" fill="none" stroke="#00f5ff" stroke-width="1" opacity="0.15"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header">
+    <p class="section-label">// WHAT WE DO</p>
+    <h2 class="section-title">OUR <span class="accent">SERVICES</span></h2>
+  </div>
+  <div class="services-grid container">
+
+    <!-- IT Consultancy -->
+    <div class="service-card it">
+      <span class="service-number">01</span>
+      <span class="service-tag">// IT CONSULTANCY</span>
+      <h3 class="service-title">IT<br>CONSULTANCY</h3>
+      <p class="service-desc">We navigate technology complexity so you don't have to. From legacy modernisation to cloud architecture, we deliver safe hands and proven results.</p>
+      <ul class="service-features">
+        <li>Cloud migration & architecture</li>
+        <li>Legacy system modernisation</li>
+        <li>Digital transformation</li>
+        <li>Infrastructure & security</li>
+        <li>Technology strategy</li>
+      </ul>
+    </div>
+
+    <!-- AI Consultancy -->
+    <div class="service-card ai">
+      <span class="service-number">02</span>
+      <span class="service-tag">// AI CONSULTANCY</span>
+      <h3 class="service-title">AI<br>CONSULTANCY</h3>
+      <p class="service-desc">We cut through the AI hype and build real-world intelligent systems that transform how your organisation operates and makes decisions.</p>
+      <ul class="service-features">
+        <li>AI strategy & roadmapping</li>
+        <li>Agentic AI implementation</li>
+        <li>Machine learning pipelines</li>
+        <li>Process automation</li>
+        <li>AI governance & ethics</li>
+      </ul>
+    </div>
+
+    <!-- M&A -->
+    <div class="service-card ma">
+      <span class="service-number">03</span>
+      <span class="service-tag">// M&A SPECIALISTS</span>
+      <h3 class="service-title">MERGERS &<br>ACQUISITIONS</h3>
+      <p class="service-desc">Technology due diligence, integration planning and post-merger IT delivery. We protect deal value and accelerate synergy realisation.</p>
+      <ul class="service-features">
+        <li>Technology due diligence</li>
+        <li>IT integration planning</li>
+        <li>Post-merger delivery</li>
+        <li>Synergy realisation</li>
+        <li>Vendor rationalisation</li>
+      </ul>
+    </div>
+
+    <!-- PMO in a Box -->
+    <div class="service-card pmo">
+      <span class="service-number">04</span>
+      <span class="service-tag">// PMO IN A BOX</span>
+      <h3 class="service-title">PMO<br>IN A BOX</h3>
+      <p class="service-desc">A complete, deployable programme management office — ready to run from day one. Governance, reporting, and delivery rigour without the overhead.</p>
+      <ul class="service-features">
+        <li>Instant PMO deployment</li>
+        <li>Governance frameworks</li>
+        <li>RAG reporting & dashboards</li>
+        <li>Risk & issue management</li>
+        <li>Portfolio management</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="container">
+    <p class="section-label">// WHY CRACKED MINDS</p>
+    <h2 class="section-title">THE <span class="accent">DIFFERENCE</span></h2>
+    <div class="why-grid">
+      <div class="why-item">
+        <span class="why-icon" style="color:var(--cyan)">⬛</span>
+        <h4 class="why-title">HUMAN FIRST</h4>
+        <p class="why-desc">We build real relationships, not engagement models. We become part of your team.</p>
+      </div>
+      <div class="why-item">
+        <span class="why-icon" style="color:var(--magenta)">⬛</span>
+        <h4 class="why-title">PROVEN TRACK RECORD</h4>
+        <p class="why-desc">Our consultants are selected for demonstrated delivery — not CVs alone.</p>
+      </div>
+      <div class="why-item">
+        <span class="why-icon" style="color:var(--yellow)">⬛</span>
+        <h4 class="why-title">INDEPENDENT & CANDID</h4>
+        <p class="why-desc">We tell you what you need to hear. No vendor bias. No politics. Just honest advice.</p>
+      </div>
+      <div class="why-item">
+        <span class="why-icon" style="color:var(--green)">⬛</span>
+        <h4 class="why-title">AI-AUGMENTED</h4>
+        <p class="why-desc">Our AI agents work alongside our consultants to deliver faster, smarter results.</p>
+      </div>
+      <div class="why-item">
+        <span class="why-icon" style="color:var(--orange)">⬛</span>
+        <h4 class="why-title">RAPID DEPLOYMENT</h4>
+        <p class="why-desc">No 18-month ramp-ups. We mobilise fast and create value from week one.</p>
+      </div>
+      <div class="why-item">
+        <span class="why-icon" style="color:var(--purple)">⬛</span>
+        <h4 class="why-title">END-TO-END CAPABILITY</h4>
+        <p class="why-desc">Strategy through to delivery. One partner across your entire technology lifecycle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <p class="section-label">// CLIENT VOICES</p>
+    <h2 class="section-title">WHAT CLIENTS <span class="accent">SAY</span></h2>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Cracked Minds didn't try to establish an 18-month roadmap with lots of people. It was more human — a collaborative approach to see how they could help and what options to explore together."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">JD</div>
+          <div>
+            <p class="author-name">J. DAVIES</p>
+            <p class="author-title">CTO, Scale-up Technology Company</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Their unwavering commitment and rigorous approach kept the project on track. Without Cracked Minds we would not have been able to overcome our major infrastructure challenge."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:var(--magenta)">SR</div>
+          <div>
+            <p class="author-name">S. RAHMAN</p>
+            <p class="author-title">Programme Director, Financial Services</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"The AI implementation they delivered has genuinely transformed how we make decisions. The team became part of our organisation, not just another vendor."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:var(--yellow);color:#000">KO</div>
+          <div>
+            <p class="author-name">K. OKAFOR</p>
+            <p class="author-title">COO, Professional Services Firm</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / CTA -->
+<section id="contact">
+  <div class="container">
+    <div class="cta-box">
+      <p class="section-label" style="text-align:center">// START A CONVERSATION</p>
+      <h2 class="cta-title">READY TO CRACK<br>YOUR NEXT CHALLENGE?</h2>
+      <p class="cta-sub">Drop us your email and we'll be in touch within 24 hours. No sales pitch — just a straight conversation about how we can help.</p>
+      <div class="cta-form">
+        <input type="email" class="cta-input" placeholder="your@email.com">
+        <button class="cta-submit" onclick="handleSubmit()">SEND ▶</button>
+      </div>
+      <p style="font-size:10px;color:rgba(240,240,240,0.3);margin-top:1rem">Or email us directly: <span style="color:var(--cyan)">hello@crackedminds.co.uk</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="logo">CRACKED_MINDS</span>
+      <p>Elite IT & AI consultancy based in Manchester. We solve complex problems with people, technology, and intelligent systems.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">LI</a>
+        <a href="#" class="social-btn">TW</a>
+        <a href="#" class="social-btn">GH</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>SERVICES</h4>
+      <ul>
+        <li><a href="#services">IT Consultancy</a></li>
+        <li><a href="#services">AI Consultancy</a></li>
+        <li><a href="#services">M&A Specialists</a></li>
+        <li><a href="#services">PMO in a Box</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>COMPANY</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#why">Why Us</a></li>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>CONTACT</h4>
+      <ul>
+        <li><a href="#">Manchester, UK</a></li>
+        <li><a href="mailto:hello@crackedminds.co.uk">hello@crackedminds.co.uk</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Book a Call</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 Cracked Minds Ltd. All rights reserved.</p>
+    <span class="pixel-badge">[ BUILT WITH AI · POWERED BY CRACKED MINDS ]</span>
+  </div>
+</footer>
+
+<script>
+  // Pixel rain effect
+  const rain = document.getElementById('pixelRain');
+  const colours = ['#00f5ff','#ff00aa','#ffe600','#00ff88','#9b59ff','#ff6b00'];
+  for (let i = 0; i < 30; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'rain-drop';
+    drop.style.cssText = `
+      left: ${Math.random() * 100}%;
+      width: ${Math.random() > 0.5 ? 4 : 8}px;
+      height: ${4 + Math.floor(Math.random() * 3) * 4}px;
+      background: ${colours[Math.floor(Math.random() * colours.length)]};
+      animation-duration: ${4 + Math.random() * 8}s;
+      animation-delay: ${Math.random() * 8}s;
+    `;
+    rain.appendChild(drop);
+  }
+
+  // CTA form
+  function handleSubmit() {
+    const input = document.querySelector('.cta-input');
+    const btn = document.querySelector('.cta-submit');
+    if (input.value && input.value.includes('@')) {
+      btn.textContent = 'SENT ✓';
+      btn.style.background = '#00ff88';
+      btn.style.borderColor = '#00ff88';
+      input.value = '';
+      setTimeout(() => {
+        btn.textContent = 'SEND ▶';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+      }, 3000);
+    } else {
+      input.style.borderColor = '#ff00aa';
+      setTimeout(() => input.style.borderColor = '', 1500);
+    }
+  }
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
