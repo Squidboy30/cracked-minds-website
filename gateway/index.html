@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boltwork Gateway — L402 Lightning payments for any API</title>
+<meta name="description" content="Add Bitcoin Lightning payments to any API in 10 minutes. No node required. 2% of volume, no monthly fee.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a08;--surface:#111110;--surface2:#1a1a18;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0ede8;--text2:#8a8880;--text3:#555450;
+  --gold:#f5a623;--gold2:#d4880a;--gold-dim:rgba(245,166,35,0.12);--gold-glow:rgba(245,166,35,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.1);--red:#ef4444;
+  --mono:'IBM Plex Mono',monospace;--sans:'Syne',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--mono);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.4}
+header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(10,10,8,0.85);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border)}
+.logo{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--text);text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px}
+.logo-bolt{color:var(--gold);font-size:20px}
+nav{display:flex;align-items:center;gap:32px}
+nav a{font-size:13px;color:var(--text2);text-decoration:none;transition:color 0.2s}
+nav a:hover{color:var(--text)}
+.nav-cta{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--bg)!important;background:var(--gold);padding:8px 20px;border-radius:4px;text-decoration:none;transition:background 0.2s}
+.nav-cta:hover{background:var(--gold2)!important}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 40px 80px;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(245,166,35,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,0.04) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.hero-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(245,166,35,0.08) 0%,transparent 70%);pointer-events:none}
+.hero-inner{max-width:900px;margin:0 auto;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--gold);background:var(--gold-dim);border:0.5px solid rgba(245,166,35,0.3);padding:5px 14px;border-radius:2px;margin-bottom:28px;letter-spacing:0.08em;text-transform:uppercase}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+h1{font-family:var(--sans);font-size:clamp(42px,7vw,80px);font-weight:800;line-height:1.0;letter-spacing:-0.04em;color:var(--text);margin-bottom:24px}
+h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{font-size:18px;color:var(--text2);max-width:600px;margin-bottom:48px;line-height:1.7}
+.hero-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.btn-primary{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--bg);background:var(--gold);padding:14px 32px;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;border:none;cursor:pointer}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 8px 24px var(--gold-glow)}
+.btn-ghost{font-family:var(--mono);font-size:13px;color:var(--text2);text-decoration:none;padding:14px 24px;border:0.5px solid var(--border2);border-radius:4px;transition:all 0.2s}
+.btn-ghost:hover{color:var(--text);background:var(--surface)}
+.live-demo{margin-top:64px;background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;overflow:hidden;max-width:740px}
+.demo-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--surface2);border-bottom:0.5px solid var(--border)}
+.demo-dot{width:10px;height:10px;border-radius:50%}
+.demo-dot-r{background:#ff5f57}.demo-dot-y{background:#ffbd2e}.demo-dot-g{background:#28c840}
+.demo-label{font-size:11px;color:var(--text3);margin-left:4px;letter-spacing:0.06em}
+.demo-body{padding:20px 24px;font-size:13px;line-height:1.8}
+.demo-comment{color:var(--text3)}.demo-cmd{color:var(--text2)}.demo-url{color:#7dd3fc}
+.demo-status-200{color:var(--green);font-weight:600}.demo-key{color:#c084fc}.demo-val{color:#86efac}
+.demo-prompt{color:var(--gold);margin-right:4px;user-select:none}
+.demo-cursor{display:inline-block;width:7px;height:14px;background:var(--gold);opacity:0;vertical-align:middle;animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:0}50%{opacity:1}}
+section{padding:96px 40px}
+.section-inner{max-width:900px;margin:0 auto}
+.section-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-weight:500}
+h2{font-family:var(--sans);font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-0.03em;color:var(--text);margin-bottom:20px;line-height:1.1}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:56px;background:var(--border);border-radius:8px;overflow:hidden}
+.step{background:var(--surface);padding:40px 32px}
+.step-num{font-family:var(--sans);font-size:56px;font-weight:800;color:var(--gold-dim);line-height:1;margin-bottom:20px;letter-spacing:-0.04em;user-select:none}
+.step-title{font-family:var(--sans);font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px;letter-spacing:-0.02em}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.7}
+.step-code{margin-top:16px;font-size:11px;color:var(--text3);background:var(--bg);padding:10px 14px;border-radius:4px;border:0.5px solid var(--border);white-space:pre;overflow-x:auto}
+.pricing-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:8px;padding:48px;margin-top:40px;position:relative;overflow:hidden}
+.pricing-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.price-big{font-family:var(--sans);font-size:72px;font-weight:800;color:var(--gold);line-height:1;letter-spacing:-0.04em;margin-bottom:8px}
+.price-sub{font-size:15px;color:var(--text2);margin-bottom:40px}
+.price-features{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:40px}
+.price-feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2)}
+.price-feat::before{content:'✓';color:var(--gold);font-weight:600;flex-shrink:0;margin-top:1px}
+.price-example{background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:20px 24px;font-size:13px}
+.price-example-title{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.price-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--border)}
+.price-row:last-child{border-bottom:none}
+.price-row-label{color:var(--text2)}.price-row-val{color:var(--text);font-weight:500}
+.price-row-val.gold{color:var(--gold)}.price-row-val.green{color:var(--green)}
+.faq-list{margin-top:40px;display:flex;flex-direction:column;gap:2px}
+.faq-item{background:var(--surface);border-radius:4px;overflow:hidden;border:0.5px solid transparent;transition:border-color 0.2s}
+.faq-item:hover{border-color:var(--border2)}
+.faq-q{padding:20px 24px;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;letter-spacing:-0.01em;user-select:none}
+.faq-arrow{font-size:18px;color:var(--gold);transition:transform 0.2s;flex-shrink:0}
+.faq-item.open .faq-arrow{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s;font-size:14px;color:var(--text2);line-height:1.75;padding:0 24px}
+.faq-item.open .faq-a{max-height:300px;padding:0 24px 20px}
+#register{background:var(--surface);border-top:0.5px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
+.form-grid .full{grid-column:1/-1}
+.form-field{display:flex;flex-direction:column;gap:8px}
+label{font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3)}
+input,textarea{background:var(--bg);border:0.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:14px;padding:12px 16px;border-radius:4px;outline:none;transition:border-color 0.2s;width:100%}
+input:focus,textarea:focus{border-color:var(--gold)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+textarea{resize:vertical;min-height:120px;line-height:1.6}
+.form-hint{font-size:11px;color:var(--text3);margin-top:4px}
+.endpoint-example{margin-top:4px;font-size:12px;color:var(--text3);background:var(--bg);padding:10px 14px;border-radius:4px;border:0.5px solid var(--border);white-space:pre}
+.form-submit{margin-top:32px;display:flex;align-items:center;gap:16px}
+.form-note{font-size:12px;color:var(--text3)}
+#form-result{display:none;margin-top:20px;padding:16px 20px;border-radius:4px;font-size:13px}
+#form-result.success{background:var(--green-dim);border:0.5px solid rgba(34,197,94,0.3);color:var(--green)}
+#form-result.error{background:rgba(239,68,68,0.1);border:0.5px solid rgba(239,68,68,0.3);color:var(--red)}
+footer{padding:40px;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-left{font-size:13px;color:var(--text3)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:13px;color:var(--text3);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:var(--text2)}
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){
+  header{padding:16px 20px}nav a:not(.nav-cta){display:none}
+  .hero{padding:100px 20px 60px}h1{font-size:40px}
+  .how-steps{grid-template-columns:1fr}.price-features{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}
+  section{padding:64px 20px}footer{padding:24px 20px}.pricing-card{padding:32px 20px}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#"><span class="logo-bolt">⚡</span> Boltwork Gateway</a>
+  <nav>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://parsebit.fly.dev/agent-spec.md" target="_blank">Docs</a>
+    <a href="#register" class="nav-cta">Get your gateway →</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">L402 · Bitcoin Lightning · No node required</div>
+    <h1>Add <em>Lightning</em><br>payments to<br>any API.</h1>
+    <p class="hero-sub">Any HTTP API. Any endpoint. Any price in sats.<br>Your gateway is live in under 10 minutes.</p>
+    <div class="hero-actions">
+      <a href="#register" class="btn-primary">Get your gateway →</a>
+      <a href="https://parsebit-lnd.fly.dev/summarise/url" target="_blank" class="btn-ghost">See a live 402 →</a>
+    </div>
+    <div class="live-demo fade-up">
+      <div class="demo-bar">
+        <div class="demo-dot demo-dot-r"></div><div class="demo-dot demo-dot-y"></div><div class="demo-dot demo-dot-g"></div>
+        <span class="demo-label">terminal — L402 payment flow</span>
+      </div>
+      <div class="demo-body">
+        <div><span class="demo-prompt">$</span><span class="demo-comment"># 1. Hit your gateway endpoint</span></div>
+        <div><span class="demo-prompt">$</span><span class="demo-cmd">curl -X POST </span><span class="demo-url">https://parsebit-lnd.fly.dev/c/your-id/analyse</span></div>
+        <br>
+        <div><span class="demo-comment"># ← HTTP 402 Payment Required</span></div>
+        <div><span class="demo-key">WWW-Authenticate:</span> <span class="demo-val">L402 token="...", invoice="lnbc500..."</span></div>
+        <br>
+        <div><span class="demo-comment"># 2. Pay the invoice. 3. Retry with proof</span></div>
+        <div><span class="demo-prompt">$</span><span class="demo-cmd">curl -X POST </span><span class="demo-url">https://parsebit-lnd.fly.dev/c/your-id/analyse</span> <span class="demo-cmd">\</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="demo-key">-H</span> <span class="demo-val">"Authorization: L402 &lt;token&gt;:&lt;preimage&gt;"</span></div>
+        <br>
+        <div><span class="demo-comment"># ← HTTP 200 — your API response</span></div>
+        <div><span class="demo-status-200">HTTP 200 OK</span></div>
+        <div><span class="demo-key">{"result":</span> <span class="demo-val">"..."</span><span class="demo-key">}</span> <span class="demo-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="section-inner">
+    <div class="section-label">How it works</div>
+    <h2>Three steps to your first paid request.</h2>
+    <div class="how-steps fade-up">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Register your API</div>
+        <div class="step-desc">Tell us your API URL, the endpoints you want to gate, and your price per call in satoshis.</div>
+        <div class="step-code">POST /gateway/register
+{
+  "api_base_url": "https://your-api.com",
+  "endpoints": [{
+    "path": "/analyse",
+    "price_sats": 500
+  }]
+}</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Get your gateway URL</div>
+        <div class="step-desc">We provision a unique path prefix on our Lightning gateway instantly. No DNS changes required.</div>
+        <div class="step-code">gateway_url:
+  https://parsebit-lnd.fly.dev
+  /c/your-id/analyse
+
+→ Forwards to your API
+→ L402-gated at 500 sats</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Earn sats per request</div>
+        <div class="step-desc">Clients pay a Lightning invoice automatically. You earn 98% of every transaction, paid monthly.</div>
+        <div class="step-code">1,000 requests × 500 sats
+= 500,000 sats routed
+
+Your cut (98%):
+= 490,000 sats / month</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" style="background:var(--surface);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border)">
+  <div class="section-inner">
+    <div class="section-label">Pricing</div>
+    <h2>2% of volume.<br>Nothing else.</h2>
+    <div class="pricing-card fade-up">
+      <div class="price-big">2%</div>
+      <div class="price-sub">of transaction volume — no monthly fee, no minimum to start</div>
+      <div class="price-features">
+        <div class="price-feat">Unlimited endpoints per gateway</div>
+        <div class="price-feat">Any price from 1 sat upward</div>
+        <div class="price-feat">Instant provisioning — live in minutes</div>
+        <div class="price-feat">No Lightning node required on your end</div>
+        <div class="price-feat">Dashboard with live request stats</div>
+        <div class="price-feat">Monthly billing above 10,000 sat threshold</div>
+        <div class="price-feat">L402-compliant — works with any Lightning wallet</div>
+        <div class="price-feat">Compatible with autonomous AI agents</div>
+      </div>
+      <div class="price-example">
+        <div class="price-example-title">Worked example — 1,000 requests/day at 500 sats</div>
+        <div class="price-row"><span class="price-row-label">Client pays per request</span><span class="price-row-val">510 sats</span></div>
+        <div class="price-row"><span class="price-row-label">You earn per request</span><span class="price-row-val green">500 sats</span></div>
+        <div class="price-row"><span class="price-row-label">Boltwork fee per request</span><span class="price-row-val">10 sats (2%)</span></div>
+        <div class="price-row"><span class="price-row-label">Monthly requests (30 days)</span><span class="price-row-val">30,000</span></div>
+        <div class="price-row"><span class="price-row-label">Your monthly earnings</span><span class="price-row-val gold">15,000,000 sats</span></div>
+        <div class="price-row"><span class="price-row-label">Boltwork monthly fee</span><span class="price-row-val">300,000 sats</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-label">Questions</div>
+    <h2>Straight answers.</h2>
+    <div class="faq-list fade-up">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need to run a Lightning node?<span class="faq-arrow">+</span></div>
+        <div class="faq-a">No. Boltwork runs the Lightning infrastructure — LND + Aperture — on our servers. You just point us at your existing HTTP API. Your clients need a Lightning wallet to pay, but you need no Bitcoin infrastructure at all.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens if the Lightning node goes offline?<span class="faq-arrow">+</span></div>
+        <div class="faq-a">We run on Fly.io with LND connected to multiple neutrino peers for resilience. If the node goes down, the gateway returns a 503 — clients will retry. We monitor 24/7 and target under 15 minutes recovery time. This is a managed self-hosted node, not AWS multi-region. We're transparent about that.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does the 2% fee actually work?<span class="faq-arrow">+</span></div>
+        <div class="faq-a">It's baked into the Lightning invoice price. If you set your endpoint price at 500 sats, clients are charged 510 sats. You earn 500 sats, Boltwork keeps 10 sats. Fees are collected once per month when your accumulated balance exceeds 10,000 sats — we send you a Lightning invoice for the Boltwork cut.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is L402 and will my clients support it?<span class="faq-arrow">+</span></div>
+        <div class="faq-a">L402 is an HTTP payment protocol: your server returns 402 with a Lightning invoice, the client pays, and retries with the preimage as a Bearer token. Any Lightning wallet works for manual use. For autonomous AI agents, frameworks like boltwork-mcp and Alby support L402 natively.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can AI agents use this automatically?<span class="faq-arrow">+</span></div>
+        <div class="faq-a">Yes — that's the original design goal. Agents that support L402 will automatically discover, pay, and use your gateway without human intervention. Your gated API becomes accessible to the entire autonomous agent ecosystem.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="register">
+  <div class="section-inner">
+    <div class="section-label">Get started</div>
+    <h2>Your gateway,<br>live in minutes.</h2>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:8px">Fill in the form — no payment details needed. Your gateway is provisioned instantly.</p>
+    <form id="reg-form" onsubmit="handleSubmit(event)">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="name">Your name or company</label>
+          <input type="text" id="name" placeholder="Acme Labs" required>
+        </div>
+        <div class="form-field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-field full">
+          <label for="api_url">Your API base URL</label>
+          <input type="url" id="api_url" placeholder="https://api.example.com" required>
+          <div class="form-hint">Must be publicly accessible. We'll verify it's reachable during registration.</div>
+        </div>
+        <div class="form-field full">
+          <label for="lightning">Lightning address (for monthly fee payment)</label>
+          <input type="text" id="lightning" placeholder="you@walletofsatoshi.com">
+          <div class="form-hint">Optional — we'll contact you when fees are due if not set.</div>
+        </div>
+        <div class="form-field full">
+          <label for="endpoints_json">Endpoint configuration (JSON)</label>
+          <textarea id="endpoints_json" required placeholder='[{"path": "/your-endpoint", "method": "POST", "price_sats": 500, "description": "What it does"}]'></textarea>
+          <div class="endpoint-example">[
+  {"path": "/summarise", "method": "POST", "price_sats": 500,  "description": "Summarise a document"},
+  {"path": "/translate",  "method": "POST", "price_sats": 150,  "description": "Translate text"}
+]</div>
+          <div class="form-hint">price_sats: 1–1,000,000. method: GET, POST, PUT, DELETE, or *</div>
+        </div>
+      </div>
+      <div class="form-submit">
+        <button type="submit" class="btn-primary" id="submit-btn">Get your gateway →</button>
+        <span class="form-note">No credit card. No account setup. Instant activation.</span>
+      </div>
+      <div id="form-result"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-left">⚡ Boltwork Gateway by <a href="https://crackedminds.co.uk" style="color:var(--text2);text-decoration:none">Cracked Minds</a></div>
+  <div class="footer-links">
+    <a href="https://parsebit.fly.dev/agent-spec.md" target="_blank">Docs</a>
+    <a href="https://parsebit.fly.dev/.well-known/l402.json" target="_blank">L402 manifest</a>
+    <a href="https://github.com/Squidboy30/Boltwork" target="_blank">GitHub</a>
+    <a href="https://402index.io" target="_blank">402 Index</a>
+    <a href="https://crackedminds.co.uk">crackedminds.co.uk</a>
+  </div>
+</footer>
+
+<script>
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+function toggleFaq(btn){const item=btn.closest('.faq-item');const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!wasOpen)item.classList.add('open')}
+async function handleSubmit(e){
+  e.preventDefault();
+  const btn=document.getElementById('submit-btn');
+  const result=document.getElementById('form-result');
+  btn.textContent='Registering...';btn.disabled=true;result.style.display='none';
+  let endpoints;
+  try{endpoints=JSON.parse(document.getElementById('endpoints_json').value)}
+  catch{result.textContent='✗ Invalid JSON in endpoint configuration. Please check the format.';result.className='error';result.style.display='block';btn.textContent='Get your gateway →';btn.disabled=false;return}
+  const payload={name:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),api_base_url:document.getElementById('api_url').value.trim(),lightning_address:document.getElementById('lightning').value.trim()||null,endpoints};
+  try{
+    const res=await fetch('https://parsebit.fly.dev/gateway/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(res.ok){
+      result.innerHTML=`<strong>✓ Your gateway is live!</strong><br><br><strong>Gateway:</strong> ${data.gateway_base_url}<br><strong>Customer ID:</strong> ${data.customer_id}<br><strong>Dashboard:</strong> <a href="${data.dashboard_url}" style="color:inherit">${data.dashboard_url}</a><br><br><strong>Test it now:</strong><br><code style="font-size:12px;word-break:break-all">${data.test_command}</code><br><br>${data.next_step}`;
+      result.className='success';
+    }else{
+      const msg=data.detail?.errors?data.detail.errors.join(', '):(data.detail||'Registration failed.');
+      result.textContent='✗ '+msg;result.className='error';btn.textContent='Get your gateway →';btn.disabled=false;
+    }
+  }catch(err){result.textContent='✗ Network error: '+err.message;result.className='error';btn.textContent='Get your gateway →';btn.disabled=false}
+  result.style.display='block';result.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
